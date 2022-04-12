@@ -1,6 +1,8 @@
-from typing import List
+from typing import List, TYPE_CHECKING
 from dataclasses import dataclass
 
+if TYPE_CHECKING:
+    from boxdiff.models.core import ID, BoundingBox
 from boxdiff.models.flags import (
     BoundingBoxDifference,
     ImageDifference,
@@ -10,7 +12,7 @@ from boxdiff.models.flags import (
 
 @dataclass
 class BoundingBoxDelta:
-    id: 'ID'
+    id: ID
     label_old: str
     label_new: str
     x_delta: float
@@ -36,9 +38,9 @@ class BoundingBoxDelta:
 
 @dataclass
 class ImageDelta:
-    id: 'ID'
-    boxes_added: List['BoundingBox']
-    boxes_removed: List['BoundingBox']
+    id: ID
+    boxes_added: List[BoundingBox]
+    boxes_removed: List[BoundingBox]
     box_deltas: List[BoundingBoxDelta]
 
     @property
@@ -59,7 +61,7 @@ class ImageDelta:
 
 @dataclass
 class ImageSetDelta:
-    id: 'ID'
+    id: ID
     images_added: List[ImageDelta]
     images_removed: List[ImageDelta]
     image_deltas: List[ImageDelta]
