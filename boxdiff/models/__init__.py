@@ -7,3 +7,10 @@ from boxdiff.models.flags import (
     ImageDifference,
     ImageSetDifference,
 )
+
+# Delta models
+from boxdiff.models.deltas import (
+    BoundingBoxDelta,
+    ImageDelta,
+    ImageSetDelta,
+)

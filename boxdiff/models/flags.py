@@ -18,6 +18,7 @@ class ImageDifference(Flag):
 
     BOXES_ADDED = auto()
     BOXES_REMOVED = auto()
+    BOXES_MODIFIED = auto()
 
 
 class ImageSetDifference(Flag):
@@ -27,3 +28,4 @@ class ImageSetDifference(Flag):
 
     IMAGES_ADDED = auto()
     IMAGES_REMOVED = auto()
+    IMAGES_MODIFIED = auto()

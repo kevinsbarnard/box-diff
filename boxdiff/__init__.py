@@ -2,11 +2,11 @@
 from boxdiff.models import (
     BoundingBox,
     BoundingBoxDifference,
+    BoundingBoxDelta,
     Image,
     ImageDifference,
+    ImageDelta,
     ImageSet,
     ImageSetDifference,
+    ImageSetDelta,
 )
-
-# Difference functions
-from boxdiff.diff import bounding_box_diff, image_diff, image_set_diff
