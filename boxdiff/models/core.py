@@ -1,4 +1,4 @@
-from typing import List, TypeVar
+from typing import List, Optional, Tuple, TypeVar
 from uuid import UUID
 
 from pydantic.dataclasses import dataclass
@@ -41,20 +41,57 @@ class BoundingBox:
     def __add__(self, delta: BoundingBoxDelta) -> 'BoundingBox':
         return BoundingBox(
             delta.id,
-            delta.new_label,
-            self.x + delta.delta_x,
-            self.y + delta.delta_y,
-            self.width + delta.delta_width,
-            self.height + delta.delta_height,
+            delta.label_new,
+            self.x + delta.x_delta,
+            self.y + delta.y_delta,
+            self.width + delta.width_delta,
+            self.height + delta.height_delta,
         )
 
     def __iadd__(self, delta: BoundingBoxDelta) -> 'BoundingBox':
-        self.label = delta.new_label
-        self.x += delta.delta_x
-        self.y += delta.delta_y
-        self.width += delta.delta_width
-        self.height += delta.delta_height
+        self.label = delta.label_new
+        self.x += delta.x_delta
+        self.y += delta.y_delta
+        self.width += delta.width_delta
+        self.height += delta.height_delta
         return self
+
+    @property
+    def points(self) -> Tuple[float]:
+        """
+        Return the 4 points of the bounding box.
+        """
+        return self.x, self.y, self.x + self.width, self.y + self.height
+
+    @property
+    def area(self) -> float:
+        """
+        Return the area of the bounding box.
+        """
+        return self.width * self.height
+
+    def __and__(self, other: 'BoundingBox') -> Optional['BoundingBox']:
+        """
+        Compute the intersection of two bounding boxes, or None if they don't overlap.
+        """
+        x1, y1, x2, y2 = self.points
+        x3, y3, x4, y4 = other.points
+        x = max(x1, x3)
+        y = max(y1, y3)
+        w = min(x2, x4) - x
+        h = min(y2, y4) - y
+        if w <= 0 or h <= 0:
+            return None
+        return BoundingBox(self.id, self.label, x, y, w, h)
+
+    def iou(self, other: 'BoundingBox') -> float:
+        """
+        Compute the intersection over union of two bounding boxes.
+        """
+        intersection = self & other
+        if intersection is None:
+            return 0
+        return intersection.area / (self.area + other.area - intersection.area)
 
 
 @dataclass_json

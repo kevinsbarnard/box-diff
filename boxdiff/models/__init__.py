@@ -9,8 +9,4 @@ from boxdiff.models.flags import (
 )
 
 # Delta models
-from boxdiff.models.deltas import (
-    BoundingBoxDelta,
-    ImageDelta,
-    ImageSetDelta,
-)
+from boxdiff.models.deltas import BoundingBoxDelta, ImageDelta, ImageSetDelta

@@ -5,6 +5,8 @@ from uuid import UUID, uuid4
 from random import randint
 
 from boxdiff.models.core import BoundingBox
+from boxdiff.models.deltas import BoundingBoxDelta
+from boxdiff.models.flags import BoundingBoxDifference
 
 
 class TestSerialization(TestCase):
@@ -88,3 +90,60 @@ class TestSerialization(TestCase):
         # Check that the bounding box JSON string is valid
         true_json_str = json.dumps(json.loads(box_with_str_id_json_str))
         self.assertEqual(true_json_str, serialized_box_with_int_id_json_str)
+
+
+class TestBoundingBoxDeltas(TestCase):
+    def setUp(self) -> None:
+        self.base_bounding_box = BoundingBox('test', 'test', 0.0, 0.0, 1.0, 1.0)
+
+        self.move_delta = BoundingBoxDelta('test', 'test', 'test', 1.0, 1.0, 0.0, 0.0)
+        self.moved_bounding_box = BoundingBox('test', 'test', 1.0, 1.0, 1.0, 1.0)
+
+        self.resize_delta = BoundingBoxDelta('test', 'test', 'test', 0.0, 0.0, 1.0, 1.0)
+        self.resized_bounding_box = BoundingBox('test', 'test', 0.0, 0.0, 2.0, 2.0)
+
+        self.relabel_delta = BoundingBoxDelta(
+            'test', 'test', 'test_relabeled', 0.0, 0.0, 0.0, 0.0
+        )
+        self.relabeled_bounding_box = BoundingBox(
+            'test', 'test_relabeled', 0.0, 0.0, 1.0, 1.0
+        )
+
+    def test_compute_move_delta(self):
+        computed_move_delta = self.moved_bounding_box - self.base_bounding_box
+        self.assertEqual(self.move_delta, computed_move_delta)
+        self.assertEqual(BoundingBoxDifference.MOVED, computed_move_delta.flags)
+
+    def test_compute_resize_delta(self):
+        computed_resize_delta = self.resized_bounding_box - self.base_bounding_box
+        self.assertEqual(self.resize_delta, computed_resize_delta)
+        self.assertEqual(BoundingBoxDifference.RESIZED, computed_resize_delta.flags)
+
+    def test_compute_relabel_delta(self):
+        computed_relabel_delta = self.relabeled_bounding_box - self.base_bounding_box
+        self.assertEqual(self.relabel_delta, computed_relabel_delta)
+        self.assertEqual(BoundingBoxDifference.RELABELED, computed_relabel_delta.flags)
+
+    def test_apply_move_delta(self):
+        computed_moved_bounding_box = self.base_bounding_box + self.move_delta
+        self.assertEqual(self.moved_bounding_box, computed_moved_bounding_box)
+
+    def test_apply_resize_delta(self):
+        computed_resized_bounding_box = self.base_bounding_box + self.resize_delta
+        self.assertEqual(self.resized_bounding_box, computed_resized_bounding_box)
+
+    def test_apply_relabel_delta(self):
+        computed_relabeled_bounding_box = self.base_bounding_box + self.relabel_delta
+        self.assertEqual(self.relabeled_bounding_box, computed_relabeled_bounding_box)
+
+
+class TestBoundingBoxIOU(TestCase):
+    def setUp(self) -> None:
+        self.box_a = BoundingBox('test', 'test', 0.0, 0.0, 1.0, 1.0)
+        self.box_b = BoundingBox('test', 'test', 0.5, 0.5, 1.5, 1.5)
+
+    def test_iou_with_same_boxes(self):
+        self.assertEqual(1.0, self.box_a.iou(self.box_a))
+
+    def test_iou_with_different_boxes(self):
+        self.assertAlmostEqual(1 / 12, self.box_a.iou(self.box_b))

@@ -1,8 +1,9 @@
 [tool.poetry]
 name = "boxdiff"
-version = "0.1.0"
+version = "0.1.1"
 description = "Utilities for comparing bounding boxes"
 authors = ["Kevin Barnard <kbarnard@mbari.org>"]
+repository = "https://github.com/kevinsbarnard/box-diff"
 
 [tool.poetry.dependencies]
 python = "^3.8"
